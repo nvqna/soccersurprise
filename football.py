@@ -4,6 +4,7 @@ from collections import defaultdict
 from datetime import date,timedelta
 import requests
 import re
+import csv 
 
 # returns a list of all saturday dates for a year
 def allSaturdays(year):
@@ -34,6 +35,15 @@ date = "20211120"
 url = api + date
 
 response = requests.get(url)
+#csv data from https://fixturedownload.com/download/csv/epl-2021
+matches_dict = defaultdict(list)
+with open("matchdays21-22.csv", newline="") as csvfile:
+    data = csv.reader(csvfile, delimiter=",")
+    for row in data:
+        if row[1] not in matches_dict[row[0]]: 
+            matches_dict[row[0]].append(row[1]) 
+
+print(matches_dict)
 
 # dict with n goals as key, array of matches as value
 goals_dict = defaultdict(list)
