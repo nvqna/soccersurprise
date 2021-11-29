@@ -65,6 +65,10 @@ for event in response.json()['events']:
     totalGoals = int(team0Score) + int(team1Score)
     extraTime = getExtraTime(event)
     goals_dict[totalGoals].append(title)
+    #todo
+    #totalShots = 
+    #redCards = 
+    #totalDistanceTravelled = 
 
 for key,values in sorted(goals_dict.items(), reverse=True):
     for v in values:
