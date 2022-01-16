@@ -87,9 +87,9 @@ def getMatchData(date):
         match = Match.Match(date, homeTeam, awayTeam, extraTime, totalGoals, volleyGoals, headerGoals,
                         freeKickGoals, penaltyScored, yellowCards, redCards, ownGoals)
 
-        conn = db.create_connection()
-        conn.execute("INSERT INTO Matches values ")
-
+        s = db.create_connection()
+        s.add(match)
+        s.commit()
 
 api = "http://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?lang=en&region=gb&calendartype=whitelist&limit=100&league=eng.1&dates="
 totalDays = 282
