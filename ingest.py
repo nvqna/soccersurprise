@@ -8,6 +8,7 @@ import csv
 import sqlite3
 from os import path
 import Match
+import db
 
 # takes date in yyymmmd format
 # returns the next calendar day
@@ -36,22 +37,65 @@ def getMatchData(date):
     for event in response.json()['events']:
         team0Name = event['competitions'][0]['competitors'][0]['team']['name']
         team1Name = event['competitions'][0]['competitors'][1]['team']['name']
+        if event['competitions'][0]['competitors'][0]['homeAway'] == 'home':
+            homeTeam = team0Name
+            awayTeam = team1Name
+        elif event['competitions'][0]['competitors'][1]['homeAway'] == 'home':
+            homeTeam = team1Name
+            awayTeam = team0Name
+        else:
+            print("Something has gone wrong with the home/away team detection!")
+            break
         title = team0Name + " vs. " + team1Name
         team0Score = event['competitions'][0]['competitors'][0]['score']
         team1Score = event['competitions'][0]['competitors'][1]['score'] 
+        totalGoals = int(team0Score) + int(team1Score)
         extraTime = getExtraTime(event)
+        #print ("\t" + title)
+        #print ("\t\ttotal goals: " + str(totalGoals))
+        #print ("\t\textra time: " + extraTime)
 
+        # extract match details
+        volleyGoals = 0
+        headerGoals = 0
+        freeKickGoals = 0
+        penaltyScored = 0
+        yellowCards = 0
+        redCards = 0
+        ownGoals = 0
+        for detail in event['competitions'][0]['details']:
+            type = detail['type']['text']
+            if type == 'Goal - Volley':
+                volleyGoals+=1
+            elif type == 'Goal - Header':
+                headerGoals+=1
+            elif type == 'Goal - Free-kick':
+                freeKickGoals+=1
+            elif type == 'Penalty - Scored':
+                penaltyScored+=1
+            elif type == 'Yellow Card':
+                yellowCards+=1
+            elif type == 'Red Card':
+                redCards+=1
+            elif type == 'Own Goal':
+                ownGoals+=1
+            elif type == 'Goal':
+                pass
+            else:
+                print('NEW DETAIL TYPE: ' + detail['type']['text'])
 
+        match = Match.Match(date, homeTeam, awayTeam, extraTime, totalGoals, volleyGoals, headerGoals,
+                        freeKickGoals, penaltyScored, yellowCards, redCards, ownGoals)
+
+        conn = db.create_connection()
+        conn.execute("INSERT INTO Matches values ")
 
 
 api = "http://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?lang=en&region=gb&calendartype=whitelist&limit=100&league=eng.1&dates="
 totalDays = 282
 
 
-#connection = sqlite3.connect(".\pl.db")
-#cursor = connection.cursor()
-
-for x in range(5): #totalDays):
+for x in range(50): #totalDays):
     gameDate = getDateOffset(x)
     print("date: " + gameDate)
     getMatchData(gameDate)
