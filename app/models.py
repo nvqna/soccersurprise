@@ -2,7 +2,7 @@ from app import db
 
 class Matches(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable = False)
-    date = db.Column(db.Datetime, nullable = False)
+    date = db.Column(db.DateTime, nullable = False)
     homeTeam = db.Column(db.String(255), nullable=False)
     awayTeam = db.Column(db.String(255), nullable=False)
     extraTime = db.Column(db.Integer, nullable = False)
