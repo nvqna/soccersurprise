@@ -9,6 +9,7 @@ import sqlite3
 from os import path
 import Match
 import db
+from app import models
 
 # takes date in yyymmmd format
 # returns the next calendar day
@@ -84,7 +85,9 @@ def getMatchData(date):
             else:
                 print('NEW DETAIL TYPE: ' + detail['type']['text'])
 
-        match = Match.Match(date, homeTeam, awayTeam, extraTime, totalGoals, volleyGoals, headerGoals,
+        datetime_object = datetime.strptime(date, '%Y%m%d')
+
+        match = Match.Match(datetime_object, homeTeam, awayTeam, extraTime, totalGoals, volleyGoals, headerGoals,
                         freeKickGoals, penaltyScored, yellowCards, redCards, ownGoals)
 
         s = db.create_connection()
