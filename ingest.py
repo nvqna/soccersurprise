@@ -7,9 +7,12 @@ import re
 import csv 
 import sqlite3
 from os import path
-import Match
-import db
 from app import models
+import utils
+from config import Config
+from app.models import Match
+from flask_sqlalchemy import SQLAlchemy
+from flask import Flask
 
 # takes date in yyymmmd format
 # returns the next calendar day
@@ -22,11 +25,13 @@ def getExtraTime(event):
     totalTime = event['status']['displayClock']
     regex = r".*\+(\d*)\'"
     matches = re.search(regex,totalTime)
-    return matches.group(1)
+    try:
+        extraTime = matches.group(1)
+    except AttributeError:
+        extraTime = 0
+    return extraTime
 
 def extractDetails(event):
-    # yellow cards
-    # red cards
     # total shots?
     x=1
 
@@ -52,7 +57,7 @@ def getMatchData(date):
         team1Score = event['competitions'][0]['competitors'][1]['score'] 
         totalGoals = int(team0Score) + int(team1Score)
         extraTime = getExtraTime(event)
-        #print ("\t" + title)
+        print ("\t" + title)
         #print ("\t\ttotal goals: " + str(totalGoals))
         #print ("\t\textra time: " + extraTime)
 
@@ -84,21 +89,48 @@ def getMatchData(date):
                 pass
             else:
                 print('NEW DETAIL TYPE: ' + detail['type']['text'])
+        
+        totalShots=0
+        shotsOnTarget=0
+        #team0 stats
+        for stat in event['competitions'][0]['competitors'][0]['statistics']:
+            if stat['name'] == 'shotsOnTarget':
+                shotsOnTarget += int(stat['displayValue'])
+            if stat['name'] == 'totalShots':
+                totalShots += int(stat['displayValue'])
+
+        #team1 stats
+        for stat in event['competitions'][0]['competitors'][1]['statistics']:
+            if stat['name'] == 'shotsOnTarget':
+                shotsOnTarget += int(stat['displayValue'])
+            if stat['name'] == 'totalShots':
+                totalShots += int(stat['displayValue'])
 
         datetime_object = datetime.strptime(date, '%Y%m%d')
 
-        match = Match.Match(datetime_object, homeTeam, awayTeam, extraTime, totalGoals, volleyGoals, headerGoals,
-                        freeKickGoals, penaltyScored, yellowCards, redCards, ownGoals)
+        match = models.Match(date=datetime_object, homeTeam = homeTeam, awayTeam=awayTeam, 
+                            extraTime=extraTime, totalGoals=totalGoals, 
+                            volleyGoals=volleyGoals, headerGoals=headerGoals, 
+                            freeKickGoals=freeKickGoals, penaltyScored=penaltyScored, 
+                            yellowCards=yellowCards, redCards=redCards, ownGoals=ownGoals, 
+                            totalShots=totalShots, shotsOnTarget=shotsOnTarget,
+                            aidansScore=0
+                            )
 
-        s = db.create_connection()
-        s.add(match)
-        s.commit()
-
-api = "http://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?lang=en&region=gb&calendartype=whitelist&limit=100&league=eng.1&dates="
-totalDays = 282
+        db.session.add(match)
+        db.session.commit()
 
 
-for x in range(50): #totalDays):
-    gameDate = getDateOffset(x)
-    print("date: " + gameDate)
-    getMatchData(gameDate)
+if __name__ == "__main__":
+    app = Flask(__name__)
+    app.config.from_object(Config)
+    db = SQLAlchemy(app)
+    
+    api = "http://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?lang=en&region=gb&calendartype=whitelist&limit=100&league=eng.1&dates="
+    totalDays = 282
+    today = 158
+
+    for x in range(today): #totalDays):
+        gameDate = getDateOffset(x)
+        print("date: " + gameDate)
+        getMatchData(gameDate)

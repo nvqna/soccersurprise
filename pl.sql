@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS "Matches" (
+CREATE TABLE IF NOT EXISTS "Match" (
     "id" INTEGER PRIMARY KEY,
     "date" TEXT,
     "matchday" INTEGER,
@@ -16,5 +16,8 @@ CREATE TABLE IF NOT EXISTS "Matches" (
     "penaltyScored" INTEGER,
     "homeShotsOnGoal" INTEGER,
     "awayShotsOnGoal" INTEGER,
-    "extraTime" INTEGER
+    "extraTime" INTEGER,
+    "shotsOnTarget" INTEGER,
+    "totalShots" INTEGER,
+    "aidansScore" INTEGER
 );

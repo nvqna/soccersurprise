@@ -1,8 +1,6 @@
 from app import app, db
-from app.models import Matches
-
-db.create_all()
+from app.models import Match
 
 @app.shell_context_processor
 def make_shell_context():
-    return {'db': db, 'Matches': Matches}
+    return {'db': db, 'Match': Match}

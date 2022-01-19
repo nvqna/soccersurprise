@@ -1,0 +1,42 @@
+{% extends "index.html" %}
+
+{% block tablerows %}
+<thead>
+    <tr>
+        <th>Date</th>
+        <th>Matchday</th>
+        <th>Home</th>
+        <th>Away</th>
+        <th>goals</th>
+        <th>RC</th>
+        <th>YC</th>
+        <th>Vo</th>
+        <th>He</th>
+        <th>Fr</th>
+        <th>OG</th>
+        <th>shots</th>
+        <th>SoG</th>
+        <th>AA</th>
+    </tr>
+</thead>
+<tbody>
+    {% for match in matches %}
+        <tr>
+            <td>{{ match.date.strftime('%Y-%m-%d') }}</td>
+            <td>???</td>
+            <td>{{ match.homeTeam }}</td>
+            <td>{{ match.awayTeam }}</td>
+            <td>{{ match.totalGoals }}</td>
+            <td>{{ match.redCards }}</td>
+            <td>{{ match.yellowCards }}</td>
+            <td>{{ match.volleyGoals }}</td>
+            <td>{{ match.headerGoals }}</td>
+            <td>{{ match.freeKickGoals }}</td>
+            <td>{{ match.ownGoals }}</td>
+            <td>{{ match.totalShots }}</td>
+            <td>{{ match.shotsOnGoal }}</td>
+            <td>{{ match.aidansScore }}</td>
+        </tr>
+    {% endfor %}
+</tbody>
+{% endblock %}
